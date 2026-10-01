@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi inventario O Boticário</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f1;--card:#fff;--ink:#1d2b24;--mut:#66756c;--line:#dde5de;--g:#1f6b4a;--gt:#fff;--warn:#b4232f;--warnbg:#fdecee;--amb:#8a5a00;--ambbg:#fff3d6;--ok:#1f6b4a;--okbg:#e2f3ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a16;--card:#1b2620;--ink:#e8f0ea;--mut:#9bad a2;--mut:#9aaca1;--line:#2c3a32;--g:#4fb888;--gt:#0c1a13;--warn:#ff8f98;--warnbg:#3a1c20;--amb:#f2c466;--ambbg:#3a2f14;--ok:#6fd1a2;--okbg:#17362a}}
+:root[data-theme="dark"]{--bg:#121a16;--card:#1b2620;--ink:#e8f0ea;--mut:#9aaca1;--line:#2c3a32;--g:#4fb888;--gt:#0c1a13;--warn:#ff8f98;--warnbg:#3a1c20;--amb:#f2c466;--ambbg:#3a2f14;--ok:#6fd1a2;--okbg:#17362a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Nunito,system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px 14px 90px}
+h1{font-size:1.5rem;margin:4px 0 2px;font-weight:800}
+h2{font-size:1.05rem;margin:22px 0 8px;font-weight:800}
+.sub{color:var(--mut);margin:0 0 12px}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.sum b{display:block;font-size:1.2rem}.sum span{color:var(--mut);font-size:.85rem}
+.al{border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.al.pay{background:var(--ambbg);color:var(--amb)}.al.late{background:var(--warnbg);color:var(--warn)}.al.cob{background:var(--okbg);color:var(--ok)}
+.al small{display:block;opacity:.85}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:6px 0 10px}
+.tabs button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:7px 14px;font:inherit;font-weight:600}
+.tabs button.on{background:var(--g);color:var(--gt);border-color:var(--g)}
+.it{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.it h3{margin:0;font-size:1.05rem}
+.row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.m{color:var(--mut);font-size:.88rem}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:.8rem;font-weight:700}
+.t-ok{background:var(--okbg);color:var(--ok)}.t-w{background:var(--ambbg);color:var(--amb)}.t-r{background:var(--warnbg);color:var(--warn)}
+.act{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+button,.btn{font:inherit;font-weight:700;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;text-decoration:none;cursor:pointer;min-height:38px;display:inline-flex;align-items:center}
+.p{background:var(--g);color:var(--gt);border-color:var(--g)}
+.d{color:var(--warn)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 14px rgba(0,0,0,.25);padding:12px 20px;border-radius:30px}
+dialog{border:none;border-radius:14px;padding:16px;width:min(94vw,460px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+label{display:block;font-weight:600;font-size:.88rem;margin:10px 0 3px}
+input{width:100%;font:inherit;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+fieldset{border:1px solid var(--line);border-radius:10px;margin-top:12px;padding:6px 12px 12px}
+legend{font-weight:800;padding:0 6px}
+.chk{display:flex;gap:8px;align-items:center;margin:10px 0}.chk input{width:auto}.chk label{margin:0}
+.ab{font-size:.88rem;color:var(--mut);margin-top:6px}
+.foot{margin-top:24px;display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Mi inventario O Boticário</h1>
+  <p class="sub" id="hoy"></p>
+  <div id="alerts"></div>
+  <div class="sum" id="sum"></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="list"></div>
+  <div class="foot">
+    <button id="exp">Descargar copia de seguridad</button>
+    <button id="imp">Cargar copia</button>
+    <input type="file" id="file" accept=".json" hidden>
+  </div>
+</main>
+<button class="p fab" id="add">+ Producto</button>
+
+<dialog id="dp"><form method="dialog" id="fp" onsubmit="return false">
+  <h2 id="dpt" style="margin-top:0">Producto</h2>
+  <label>Nombre del producto</label><input id="name" required>
+  <div class="g2"><div><label>Campaña (ej. 12/2026)</label><input id="camp"></div>
+  <div><label>Fecha límite de pago</label><input id="due" type="date"></div>
+  <div><label>Precio de costo</label><input id="cost" type="number" min="0" inputmode="numeric"></div>
+  <div><label>Precio de venta</label><input id="price" type="number" min="0" inputmode="numeric"></div></div>
+  <div class="m" id="util" style="margin-top:6px"></div>
+  <div class="chk"><input type="checkbox" id="paid"><label for="paid">Ya le pagué este producto a O Boticário</label></div>
+  <fieldset><legend>Venta</legend>
+    <div class="chk"><input type="checkbox" id="sold"><label for="sold">Ya lo vendí</label></div>
+    <div id="sf">
+      <label>Cliente</label><input id="buyer">
+      <div class="g2"><div><label>Celular</label><input id="phone" type="tel" inputmode="tel"></div>
+      <div><label>Fecha de venta</label><input id="sdate" type="date"></div></div>
+    </div>
+  </fieldset>
+  <div class="act"><button class="p" id="save">Guardar</button><button id="cx1">Cancelar</button></div>
+</form></dialog>
+
+<dialog id="da"><form method="dialog" onsubmit="return false">
+  <h2 style="margin-top:0" id="dat">Registrar abono</h2>
+  <div class="m" id="dai"></div>
+  <div class="g2"><div><label>Valor del abono</label><input id="aval" type="number" min="1" inputmode="numeric"></div>
+  <div><label>Fecha</label><input id="adate" type="date"></div></div>
+  <div class="act"><button class="p" id="asave">Guardar abono</button><button id="cx2">Cancelar</button></div>
+</form></dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+let items=[],filter='all',editId=null,abId=null;
+const KEY='oboticario-inv-v1';
+function load(){try{items=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){items=[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){alert('No se pudo guardar en este navegador. Descarga una copia de seguridad.')}}
+const money=n=>'$'+Math.round(n||0).toLocaleString('es-CO');
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const days=d=>Math.round((new Date(d+'T00:00')-new Date(today()+'T00:00'))/864e5);
+const fdate=d=>d?new Date(d+'T00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'}):'—';
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const abonado=i=>(i.abonos||[]).reduce((s,a)=>s+a.a,0);
+const saldo=i=>i.price-abonado(i);
+const util=i=>i.price-i.cost;
+const wa=(i,txt)=>{let p=String(i.phone||'').replace(/\D/g,'');if(p.length===10)p='57'+p;return 'https://wa.me/'+p+'?text='+encodeURIComponent(txt)};
+function dueText(d){const n=days(d);return n<0?'vencido hace '+(-n)+(n==-1?' día':' días'):n==0?'vence HOY':n==1?'vence mañana':'vence en '+n+' días'}
+
+function render(){
+  $('#hoy').textContent='Hoy es '+new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+  // alertas
+  const pay=items.filter(i=>!i.paid&&i.due&&days(i.due)<=7).sort((a,b)=>a.due.localeCompare(b.due));
+  const cob=items.filter(i=>i.sold&&saldo(i)>0);
+  let h='';
+  pay.forEach(i=>{const late=days(i.due)<0;h+=`<div class="al ${late?'late':'pay'}"><div><b>Pagar a O Boticário: ${esc(i.name)}</b><small>${dueText(i.due)} · ${money(i.cost)}${i.camp?' · Campaña '+esc(i.camp):''}</small></div><button data-a="paid" data-id="${i.id}">Ya pagué</button></div>`});
+  cob.forEach(i=>{h+=`<div class="al cob"><div><b>Cobrar a ${esc(i.buyer||'cliente')}: ${money(saldo(i))}</b><small>${esc(i.name)}${i.sdate?' · vendido '+fdate(i.sdate):''}</small></div>${i.phone?`<a class="btn" target="_blank" rel="noopener" href="${wa(i,'Hola '+(i.buyer||'')+', te recuerdo el saldo pendiente de '+money(saldo(i))+' por '+i.name+'. ¡Gracias!')}">WhatsApp</a>`:''}</div>`});
+  $('#alerts').innerHTML=h?'<h2 style="margin-top:6px">Pendientes</h2>'+h:'';
+  // resumen
+  const vend=items.filter(i=>i.sold);
+  $('#sum').innerHTML=`<div><b>${items.filter(i=>!i.sold).length}</b><span>en inventario</span></div><div><b>${money(cob.reduce((s,i)=>s+saldo(i),0))}</b><span>por cobrar</span></div><div><b>${money(vend.reduce((s,i)=>s+util(i),0))}</b><span>utilidad de lo vendido</span></div><div><b>${money(items.filter(i=>!i.paid).reduce((s,i)=>s+i.cost,0))}</b><span>por pagar a O Boticário</span></div>`;
+  // tabs
+  const T=[['all','Todos'],['stock','En inventario'],['sold','Vendidos'],['cob','Por cobrar'],['pay','Por pagar']];
+  $('#tabs').innerHTML=T.map(t=>`<button class="${filter==t[0]?'on':''}" data-f="${t[0]}">${t[1]}</button>`).join('');
+  let L=items.slice().sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
+  if(filter=='stock')L=L.filter(i=>!i.sold);
+  if(filter=='sold')L=L.filter(i=>i.sold);
+  if(filter=='cob')L=L.filter(i=>i.sold&&saldo(i)>0);
+  if(filter=='pay')L=L.filter(i=>!i.paid);
+  $('#list').innerHTML=L.length?L.map(card).join(''):'<div class="empty">No hay productos aquí. Toca “+ Producto” para agregar el primero.</div>';
+}
+function card(i){
+  const n=i.due?days(i.due):99;
+  const pagoTag=i.paid?'<span class="tag t-ok">Pagado a O Boticário</span>':`<span class="tag ${n<0?'t-r':n<=7?'t-w':'t-ok'}">Pagar: ${fdate(i.due)}${i.due?' ('+dueText(i.due)+')':''}</span>`;
+  let v='';
+  if(i.sold){
+    const s=saldo(i);
+    v=`<div style="margin-top:8px"><b>Vendido a ${esc(i.buyer||'—')}</b> <span class="m">${esc(i.phone||'')} · ${fdate(i.sdate)}</span><br>
+    <span class="tag ${s>0?'t-w':'t-ok'}">${s>0?'Debe '+money(s):'Pagado completo'}</span> <span class="m">Abonado ${money(abonado(i))} de ${money(i.price)}</span>
+    ${(i.abonos||[]).length?'<div class="ab">'+i.abonos.map(a=>`${fdate(a.d)}: ${money(a.a)}`).join(' · ')+'</div>':''}</div>`;
+  }
+  return `<div class="it"><div class="row"><h3>${esc(i.name)}</h3><span class="tag ${i.sold?'t-ok':'t-w'}">${i.sold?'Vendido':'En inventario'}</span></div>
+  <div class="m">Campaña ${esc(i.camp||'—')} · Costo ${money(i.cost)} · Venta ${money(i.price)} · <b>Utilidad ${money(util(i))}</b></div>
+  <div style="margin-top:6px">${pagoTag}</div>${v}
+  <div class="act">${i.sold&&saldo(i)>0?`<button class="p" data-a="ab" data-id="${i.id}">Abonar</button>`:''}${!i.paid?`<button data-a="paid" data-id="${i.id}">Ya pagué a O Boticário</button>`:''}<button data-a="edit" data-id="${i.id}">Editar</button><button class="d" data-a="del" data-id="${i.id}">Eliminar</button></div></div>`;
+}
+
+function openForm(id){
+  editId=id;const i=items.find(x=>x.id===id)||{};
+  $('#dpt').textContent=id?'Editar producto':'Nuevo producto';
+  $('#name').value=i.name||'';$('#camp').value=i.camp||'';$('#due').value=i.due||'';
+  $('#cost').value=i.cost??'';$('#price').value=i.price??'';$('#paid').checked=!!i.paid;
+  $('#sold').checked=!!i.sold;$('#buyer').value=i.buyer||'';$('#phone').value=i.phone||'';$('#sdate').value=i.sdate||'';
+  togSold();calcUtil();$('#dp').showModal();
+}
+const togSold=()=>{$('#sf').style.display=$('#sold').checked?'block':'none';if($('#sold').checked&&!$('#sdate').value)$('#sdate').value=today()};
+const calcUtil=()=>{const c=+$('#cost').value,p=+$('#price').value;$('#util').textContent=(c||p)?'Utilidad: '+money(p-c):''};
+$('#sold').onchange=togSold;$('#cost').oninput=$('#price').oninput=calcUtil;
+$('#add').onclick=()=>openForm(null);
+$('#cx1').onclick=()=>$('#dp').close();$('#cx2').onclick=()=>$('#da').close();
+$('#save').onclick=()=>{
+  const name=$('#name').value.trim();if(!name){$('#name').focus();return}
+  const old=items.find(x=>x.id===editId)||{};
+  const o={id:old.id||String(Date.now()),name,camp:$('#camp').value.trim(),due:$('#due').value,cost:+$('#cost').value||0,price:+$('#price').value||0,paid:$('#paid').checked,sold:$('#sold').checked,buyer:$('#buyer').value.trim(),phone:$('#phone').value.trim(),sdate:$('#sdate').value,abonos:old.abonos||[]};
+  if(old.id)items[items.indexOf(old)]=o;else items.push(o);
+  save();$('#dp').close();render();
+};
+$('#asave').onclick=()=>{
+  const a=+$('#aval').value;if(!a||a<=0){$('#aval').focus();return}
+  const i=items.find(x=>x.id===abId);i.abonos=i.abonos||[];i.abonos.push({a,d:$('#adate').value||today()});
+  save();$('#da').close();render();
+};
+document.addEventListener('click',e=>{
+  const f=e.target.closest('[data-f]');if(f){filter=f.dataset.f;render();return}
+  const b=e.target.closest('[data-a]');if(!b)return;
+  const id=b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
+  if(a=='edit')openForm(id);
+  if(a=='paid'){i.paid=true;save();render()}
+  if(a=='del'&&confirm('¿Eliminar "'+i.name+'"? No se puede deshacer.')){items=items.filter(x=>x.id!==id);save();render()}
+  if(a=='ab'){abId=id;$('#dai').textContent=i.name+' — saldo '+money(saldo(i));$('#aval').value=saldo(i);$('#adate').value=today();$('#da').showModal()}
+});
+$('#exp').onclick=()=>{const u=URL.createObjectURL(new Blob([JSON.stringify(items)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='inventario-oboticario-'+today()+'.json';a.click()};
+$('#imp').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;if(confirm('Esto reemplaza lo que hay ahora. ¿Continuar?')){items=d;save();render()}}catch(x){alert('El archivo no es una copia válida.')}};r.readAsText(e.target.files[0])};
+load();render();
+</script>
+</body>
+</html>
