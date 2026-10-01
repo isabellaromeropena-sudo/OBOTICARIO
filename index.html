@@ -63,6 +63,7 @@ legend{font-weight:800;padding:0 6px}
     <button id="exp">Descargar copia de seguridad</button>
     <button id="imp">Cargar copia</button>
     <input type="file" id="file" accept=".json" hidden>
+    <button id="out">Cerrar sesión</button>
   </div>
 </main>
 <button class="p fab" id="add">+ Producto</button>
@@ -87,6 +88,15 @@ legend{font-weight:800;padding:0 6px}
   <div class="act"><button class="p" id="save">Guardar</button><button id="cx1">Cancelar</button></div>
 </form></dialog>
 
+<dialog id="dl"><form method="dialog" onsubmit="return false">
+  <h2 style="margin-top:0">Entrar a mi inventario</h2>
+  <div class="m">Tus datos se guardan en la nube y los ves igual desde cualquier celular.</div>
+  <label>Correo</label><input id="lemail" type="email" autocomplete="username">
+  <label>Contraseña</label><input id="lpass" type="password" autocomplete="current-password">
+  <div class="d" id="lerr" style="margin-top:8px"></div>
+  <div class="act"><button class="p" id="lin">Entrar</button><button id="lnew">Crear cuenta</button></div>
+</form></dialog>
+
 <dialog id="da"><form method="dialog" onsubmit="return false">
   <h2 style="margin-top:0" id="dat">Registrar abono</h2>
   <div class="m" id="dai"></div>
@@ -95,12 +105,18 @@ legend{font-weight:800;padding:0 6px}
   <div class="act"><button class="p" id="asave">Guardar abono</button><button id="cx2">Cancelar</button></div>
 </form></dialog>
 
-<script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,doc,onSnapshot,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyBAtLIrZuQTzbljuZ7zPNLfv4TtJIAAp-M",authDomain:"oboticario-d8f6c.firebaseapp.com",projectId:"oboticario-d8f6c",storageBucket:"oboticario-d8f6c.firebasestorage.app",messagingSenderId:"785218052338",appId:"1:785218052338:web:3f1635a65e6761d676306b"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const fdb=initializeFirestore(app,{localCache:persistentLocalCache()});
+let ref=null,unsub=null;
 const $=s=>document.querySelector(s);
 let items=[],filter='all',editId=null,abId=null;
-const KEY='oboticario-inv-v1';
-function load(){try{items=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){items=[]}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){alert('No se pudo guardar en este navegador. Descarga una copia de seguridad.')}}
+function save(){if(!ref)return;setDoc(ref,{items}).catch(()=>alert('No se pudo guardar en la nube. Revisa tu conexión.'))}
 const money=n=>'$'+Math.round(n||0).toLocaleString('es-CO');
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const days=d=>Math.round((new Date(d+'T00:00')-new Date(today()+'T00:00'))/864e5);
@@ -187,7 +203,19 @@ document.addEventListener('click',e=>{
 $('#exp').onclick=()=>{const u=URL.createObjectURL(new Blob([JSON.stringify(items)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='inventario-oboticario-'+today()+'.json';a.click()};
 $('#imp').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;if(confirm('Esto reemplaza lo que hay ahora. ¿Continuar?')){items=d;save();render()}}catch(x){alert('El archivo no es una copia válida.')}};r.readAsText(e.target.files[0])};
-load();render();
+render();
+const ae=e=>{const c=e.code||'';return c.includes('email-already')?'Ese correo ya tiene cuenta. Usa "Entrar".':c.includes('weak')?'La contraseña debe tener mínimo 6 caracteres.':c.includes('invalid-email')?'El correo no es válido.':c.includes('network')?'Sin conexión a internet.':'Correo o contraseña incorrectos.'};
+const cred=()=>[$('#lemail').value.trim(),$('#lpass').value];
+$('#lin').onclick=()=>signInWithEmailAndPassword(auth,...cred()).catch(e=>$('#lerr').textContent=ae(e));
+$('#lnew').onclick=()=>createUserWithEmailAndPassword(auth,...cred()).catch(e=>$('#lerr').textContent=ae(e));
+$('#out').onclick=()=>signOut(auth);
+$('#dl').addEventListener('cancel',e=>e.preventDefault());
+onAuthStateChanged(auth,u=>{
+  if(unsub){unsub();unsub=null}
+  if(!u){ref=null;items=[];render();$('#lerr').textContent='';if(!$('#dl').open)$('#dl').showModal();return}
+  $('#dl').close();ref=doc(fdb,'users',u.uid);
+  unsub=onSnapshot(ref,s=>{items=s.exists()?(s.data().items||[]):[];render()},()=>alert('No se pudieron leer los datos. Revisa las reglas de Firestore.'));
+});
 </script>
 </body>
 </html>
